@@ -1,2 +1,2 @@
-# CyPlay
+# CyGeo
 GameCube Emulator For Windows
