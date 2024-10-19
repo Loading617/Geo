@@ -1,72 +1,74 @@
-#include "GeoEmu.h"
-#include "Log.h"
-#include <string>
-#include <sstream>
+#include <wx/wx.h>
 
-#include ""
+class MyApp : public wxApp
+{
+public:
+    bool OnInit() override;
+};
 
-#define MAX_LOADSTRING 100
+wxIMPLEMENT_APP(MyApp);
 
-// Global Variables:
+class MyFrame : public wxFrame
+{
+public:
+    MyFrame();
 
-HINSTANCE hInst;                                // current instance
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+private:
+    void OnHello(wxCommandEvent& event);
+    void OnExit(wxCommandEvent& event);
+    void OnAbout(wxCommandEvent& event);
+};
 
-// Forward declarations of functions included in this code module:
+enum
+{
+    ID_Hello = 1
+};
 
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+bool MyApp::OnInit()
+{
+    MyFrame *frame = new MyFrame();
+    frame->Show(true);
+    return true;
+}
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
-                     {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_GEO, szWindowClass, MAX_LOADSTRING);
+MyFrame::MyFrame()
+    : wxFrame(nullptr, wxID_ANY, "Geo")
+{
+    wxMenu *menuFile = new wxMenu;
+    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
+                     "Help string shown in status bar for this menu item");
+    menuFile->AppendSeparator();
+    menuFile->Append(wxID_EXIT);
 
-    if (!MyRegisterClass(hInstance))
-    {
-        return FALSE;
-    }
+    wxMenu *menuHelp = new wxMenu;
+    menuHelp->Append(wxID_ABOUT);
 
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }
+    wxMenuBar *menuBar = new wxMenuBar;
+    menuBar->Append(menuFile, "&File");
+    menuBar->Append(menuHelp, "&Help");
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_GEO));
-    MSG msg;
-    // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-    return (int) msg.wParam;
+    SetMenuBar( menuBar );
 
-    // Geo Emulator
-    GeoEmulator GeoEmulator;
+    CreateStatusBar();
+    SetStatusText("Welcome to wxWidgets!");
 
-    // Load DISC ROM
-    std::string romFile = "path_to_your_rom.bin";
-    if (!GeoEmulator.loadRom(romFile)) {
-        std::stringstream ss;
-        ss << "Failed to load ROM: " << romFile;
-        Log::error(ss.str());
-        return 1;
-    }
+    Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
+    Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
+}
 
-    // Start emulation
-    GeoEmulator.run();
+void MyFrame::OnExit(wxCommandEvent& event)
+{
+    Close(true);
+}
 
-    return 0;
+void MyFrame::OnAbout(wxCommandEvent& event)
+{
+    wxMessageBox("This is a wxWidgets example",
+                 "About Geo", wxOK | wxICON_INFORMATION);
+}
+
+void MyFrame::OnHello(wxCommandEvent& event)
+{
+    wxLogMessage("Geo from wxWidgets!");
 }
