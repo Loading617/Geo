@@ -1,4 +1,3 @@
-// Start of wxWidgets "Geo" Program
 #include <wx/wx.h>
 
 class MyApp : public wxApp
@@ -73,4 +72,3 @@ void MyFrame::OnHello(wxCommandEvent& event)
 {
     wxLogMessage("Geo from wxWidgets!");
 }
-
