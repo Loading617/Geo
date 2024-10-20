@@ -1,74 +1,42 @@
+#include "mainwindow.h"
 #include <wx/wx.h>
+#include <wx/app.h>
+#include <wx/commandlineparser.h>
 
-class MyApp : public wxApp
+Mainwindow *w = nullptr;
+int main(int argc, char *argv[])
 {
-public:
-    bool OnInit() override;
-};
+    srand(time(NULL));
 
-wxIMPLEMENT_APP(MyApp);
+    wxApp a(argc, argv);
 
-class MyFrame : public wxFrame
-{
-public:
-    MyFrame();
+    wxCoreApplication::setApplicationName("Geo");
 
-private:
-    void OnHello(wxCommandEvent& event);
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-};
+    wxCommandLineParser parser;
+    parser.AddHelpOption();
+    wxCommandLineOption verboseOption({"v", "verbose"}, "Verbose mode. Prints out more information to log.");
+    wxCommandLineOption noGUIOption("nogui", "Disable GUI elements.")
+    wxCommandLineOption testOption("test", "Run debug tests.", number_of_frames");
+    parser.addOption(verboseOption);
+    parser.addOption(noGUIOption);
+    parser.addOption(testOption); 
+    parser.addPositionalArgument("ROM", wxCoreApplication::translate("main", "ROM to run."));
+    parser.process(a);
+    const wxStringList args = parser.positionalArguments();
 
-enum
-{
-    ID_Hello = 1
-};
+    MainWindow mainWin;
+    w = &mainWin;
+    w->show();
+    if (parser.isSet(verboseOption))
+        w->setVerbose();
+    if (parser.isSet(noGUIOption))
+        w->setNoGUI();
+    if (parser.isSet(testOption))
+        w->setTest(parser.value(testOption).toInt());
+    if (args.size() > 0)
+        w->openROM(args.at(0), "", 0, 0, wxJsonObject());
+        else
+        w->updateApp();
 
-bool MyApp::OnInit()
-{
-    MyFrame *frame = new MyFrame();
-    frame->Show(true);
-    return true;
-}
-
-MyFrame::MyFrame()
-    : wxFrame(nullptr, wxID_ANY, "Geo")
-{
-    wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-                     "Help string shown in status bar for this menu item");
-    menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT);
-
-    wxMenu *menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT);
-
-    wxMenuBar *menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, "&File");
-    menuBar->Append(menuHelp, "&Help");
-
-    SetMenuBar( menuBar );
-
-    CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
-
-    Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
-    Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
-    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
-}
-
-void MyFrame::OnExit(wxCommandEvent& event)
-{
-    Close(true);
-}
-
-void MyFrame::OnAbout(wxCommandEvent& event)
-{
-    wxMessageBox("This is a wxWidgets example",
-                 "About Geo", wxOK | wxICON_INFORMATION);
-}
-
-void MyFrame::OnHello(wxCommandEvent& event)
-{
-    wxLogMessage("Geo from wxWidgets!");
+    return a.exec();
 }
