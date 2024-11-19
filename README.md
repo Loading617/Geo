@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="Geo.png" width="518" height="338" alt="Geo">  
+	<img src="Geo.png" width="542" height="531" alt="Geo">  
 </p>
 
 # Geo
